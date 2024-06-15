@@ -3,6 +3,7 @@ mod projectile;
 mod tuple;
 mod canvas;
 mod canvas_color;
+mod matrix;
 use crate::projectile::Environment;
 use crate::projectile::Projectile;
 use crate::projectile::tick;
@@ -58,8 +59,8 @@ fn main() {
         } else{
             0
         };
-        proj_canvas.write_pixel(_c1, proj_canvas.get_width() as usize - width,
-         proj_canvas.get_height() as usize - height -1);
+        proj_canvas.write_pixel(_c1, width,
+         height);
     }
     let succ_2 = proj_canvas.write_ppm("cannon.ppm", 1000, 550);
     

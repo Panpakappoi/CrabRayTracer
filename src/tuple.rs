@@ -2,6 +2,8 @@ use std::{fmt};
 
 use crate::util::util::equality;
 use std::ops::{Add, Sub, Neg, Mul, Div};
+
+
 #[derive (Clone, Copy)]
 pub struct Tuple{
     pub x: f32,
@@ -59,7 +61,6 @@ impl Mul<f32> for Tuple{
         Tuple::new(self.x * scalar, self.y *scalar, self.z * scalar, self.w * scalar)
     }
 }
-
 
 impl Div<f32> for Tuple{
     type Output = Tuple;
