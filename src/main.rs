@@ -2,6 +2,8 @@ mod util;
 mod projectile;
 mod tuple;
 mod canvas;
+mod ray;
+mod sphere;
 mod canvas_color;
 mod matrix;
 use crate::projectile::Environment;
