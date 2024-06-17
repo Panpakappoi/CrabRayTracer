@@ -1,7 +1,11 @@
 use crate::tuple::Tuple;
 use crate::sphere::Sphere;
+pub fn intersect_unwrap(sphere : &Sphere, ray:&Ray) -> Vec<f32>{
+    intersect(sphere, ray).unwrap_or(vec![-1.])
+}
 
-pub fn intersect(sphere : &Sphere, ray:&Ray)-> Option<(f32, f32)>{
+pub fn intersect(sphere : &Sphere, ray:&Ray)-> Option<Vec<f32>>{
+    let mut intersections = vec![] as Vec<f32>;
     let s_origin = sphere.get_origin();
     let origin_to_center = Tuple::new_vector(
         ray.m_origin.get_X() - s_origin.get_X(),
@@ -18,12 +22,29 @@ pub fn intersect(sphere : &Sphere, ray:&Ray)-> Option<(f32, f32)>{
     println!("{}", _disc);
     if _disc < 0. {
         None
-    } else{
+    } else {
         let _t1 = (-_b - _disc.sqrt()) / (2.0 * _a);
         let _t2 = (-_b + _disc.sqrt()) / (2.0 * _a);
-        Some((_t1, _t2))
+        if _t1 < 0.{
+            intersections.push(_t2);
+            return Some(intersections);
+        }
+        if _t2 < 0.{
+            intersections.push(_t1);
+            return Some(intersections);
+        }
+        else {
+            intersections.push(_t1);
+            intersections.push(_t2);
+            return Some(intersections);
+        }
     }
+
  }
+
+pub fn aggregate_intersection(){
+
+}
 pub struct Ray{
     m_origin: Tuple,
     m_direction: Tuple,
@@ -70,9 +91,10 @@ mod tests{
         let _s = Sphere::new(Tuple::new_point(0.,0.,0.), 1.);
         let _xs = intersect(&_s, &_r);
         let _t = _xs.unwrap();
-        assert_eq!(_t.0 , 4.);
-        assert_eq!(_t.1, 6.);
+        assert_eq!(_t[0] , 4.);
+        assert_eq!(_t[1], 6.);
 
     }
+
 
 }

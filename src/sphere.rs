@@ -1,8 +1,10 @@
 use crate::tuple::Tuple;
+#[derive (Clone, PartialEq, Debug)]
 pub struct Sphere{
     origin: Tuple,
     radius : f32,
 }
+
 
 impl Sphere{
     pub fn new(o: Tuple, r: f32)-> Self{

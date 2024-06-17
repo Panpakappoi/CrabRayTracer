@@ -6,6 +6,7 @@ mod ray;
 mod sphere;
 mod canvas_color;
 mod matrix;
+mod intersection;
 use crate::projectile::Environment;
 use crate::projectile::Projectile;
 use crate::projectile::tick;
