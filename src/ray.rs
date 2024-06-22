@@ -1,7 +1,8 @@
+use crate::intersection::Intersection;
 use crate::tuple::Tuple;
 use crate::sphere::Sphere;
 pub fn intersect_unwrap(sphere : &Sphere, ray:&Ray) -> Vec<f32>{
-    intersect(sphere, ray).unwrap_or(vec![-1.])
+    intersect(sphere, ray).unwrap_or(vec![])
 }
 
 pub fn intersect(sphere : &Sphere, ray:&Ray)-> Option<Vec<f32>>{
@@ -25,26 +26,17 @@ pub fn intersect(sphere : &Sphere, ray:&Ray)-> Option<Vec<f32>>{
     } else {
         let _t1 = (-_b - _disc.sqrt()) / (2.0 * _a);
         let _t2 = (-_b + _disc.sqrt()) / (2.0 * _a);
-        if _t1 < 0.{
-            intersections.push(_t2);
-            return Some(intersections);
-        }
-        if _t2 < 0.{
-            intersections.push(_t1);
-            return Some(intersections);
-        }
-        else {
-            intersections.push(_t1);
-            intersections.push(_t2);
-            return Some(intersections);
-        }
+        println!("{} {}\n", _t1, _t2);
+        intersections.push(_t1);
+        intersections.push(_t2);
+        return Some(intersections);
     }
-
- }
-
-pub fn aggregate_intersection(){
-
 }
+
+
+
+
+
 pub struct Ray{
     m_origin: Tuple,
     m_direction: Tuple,
