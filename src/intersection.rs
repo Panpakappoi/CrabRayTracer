@@ -46,12 +46,18 @@ pub struct Intersection<T>{
 }
 
 
-impl<T> Intersection<T>{
+impl<T: Clone> Intersection<T>{
     pub fn new(t: f32, o : T) -> Self{
         Intersection{
             m_time : t,
             m_object: o,
         }
+    }
+    pub fn get_time(&self) -> f32 {
+       self.m_time
+    }
+    pub fn get_object(&self) -> T{
+        self.m_object.clone()
     }
 }
 
@@ -69,17 +75,17 @@ mod test{
     use crate::ray::intersect_unwrap;
     use super::*;
     #[test]
-    pub fn agg_intersection(){
+    pub fn agg_intersection_test(){
         let _r = Ray::new(Tuple::new_point(0.,0.,-5.), Tuple::new_vector(0.,0.,1.));
-        let _s = Sphere::new(Tuple::new_point(0.,0.,0.),1. );
+        let _s = Sphere::new(Tuple::new_point(0.,0.,0.),1., None);
         let _xs = intersect_unwrap(&_s, &_r); // so from here
         let _b = construe_agg_structs(_xs, _s.clone()); // to here there has to be a better way?
         assert_eq!(_b[0].m_time, 4.);
         assert_eq!(_b[1].m_time, 6.);
     }
     #[test]
-    pub fn intersect_sphere_tan(){
-        let _s = Sphere::new(Tuple::new_point(0.,0.,0.),1.);
+    pub fn intersect_sphere_tan_test(){
+        let _s = Sphere::new(Tuple::new_point(0.,0.,0.),1., None);
         let _r = Ray::new(Tuple::new_point(0.,1.,-5.),Tuple::new_vector(0.,0.,1.));
         let _xs = intersect_unwrap(&_s, &_r);
         let _xs_agg = construe_agg_structs(_xs, _s.clone());
@@ -87,26 +93,26 @@ mod test{
         assert_eq!(_xs_agg[1].m_time, 5.);
     }
     #[test]
-    pub fn intersect_miss(){
+    pub fn intersect_miss_test(){
         let _r = Ray::new(Tuple::new_point(0., 2., -5.), Tuple:: new_vector(0.,0.,1.));
-        let _s = Sphere::new(Tuple::new_point(0.,0.,0.),1.);
+        let _s = Sphere::new(Tuple::new_point(0.,0.,0.),1., None);
         let _xs = intersect_unwrap(&_s, &_r);
         let _xs_agg = construe_agg_structs(_xs, _s.clone());
         assert_eq!(_xs_agg.len(), 0);
     }
     #[test]
-    pub fn ray_inside_sphere(){
+    pub fn ray_inside_sphere_test(){
         let _r = Ray::new(Tuple::new_point(0.,0.,0.), Tuple::new_vector(0.,0.,1.));
-        let _s = Sphere::new(Tuple::new_point(0.,0.,0.),1.);
+        let _s = Sphere::new(Tuple::new_point(0.,0.,0.),1., None);
         let _xs = intersect_unwrap(&_s, &_r);
         let _xs_agg = construe_agg_structs(_xs, _s.clone());
         assert_eq!(_xs_agg[0].m_time, -1.);
         assert_eq!(_xs_agg[1].m_time, 1.);
     }
     #[test]
-    pub fn ray_behind_sphere(){
+    pub fn ray_behind_sphere_test(){
         let _r = Ray::new(Tuple::new_point(0., 0., 5.), Tuple::new_vector(0.,0.,1.));
-        let _s = Sphere::new(Tuple::new_point(0.,0.,0.),1.);
+        let _s = Sphere::new(Tuple::new_point(0.,0.,0.),1., None);
         let _xs = intersect_unwrap(&_s, &_r);
         let _xs_agg = construe_agg_structs(_xs, _s.clone());
         assert_eq!(_xs_agg[0].m_time, -6.);
@@ -114,7 +120,7 @@ mod test{
     }
     #[test]
     pub fn calc_hit_test(){
-        let _s = Sphere::new(Tuple::new_point(0.,0.,0.), 1.);
+        let _s = Sphere::new(Tuple::new_point(0.,0.,0.), 1., None);
         let _i1 = Intersection::new(1., &_s);
         let _i2 = Intersection::new(2., &_s);
         let _agg = vec![_i1.clone(), _i2.clone()];
@@ -122,23 +128,23 @@ mod test{
     }
     #[test]
     pub fn calc_one_hit_test() {
-        let _s = Sphere::new(Tuple::new_point(0., 0., 0.), 1.);
+        let _s = Sphere::new(Tuple::new_point(0., 0., 0.), 1., None);
         let _i1 = Intersection::new(-1., &_s);
         let _i2 = Intersection::new(1., &_s);
         let _agg = vec![_i1.clone(), _i2.clone()];
         assert_eq!(calc_hit(_agg).unwrap(), _i2);
     }
     #[test]
-    pub fn calc_hit_no_valid(){
-        let _s = Sphere::new(Tuple::new_point(0., 0., 0.), 1.);
+    pub fn calc_hit_no_valid_test(){
+        let _s = Sphere::new(Tuple::new_point(0., 0., 0.), 1., None);
         let _i1 = Intersection::new(-1., &_s);
         let _i2 = Intersection::new(-2., &_s);
         let _agg = vec![_i1.clone(), _i2.clone()];
         assert_eq!(calc_hit(_agg), None);
     }
     #[test]
-    pub fn calc_hit_multi(){
-        let _s = Sphere::new(Tuple::new_point(0., 0., 0.), 1.);
+    pub fn calc_hit_multi_test(){
+        let _s = Sphere::new(Tuple::new_point(0., 0., 0.), 1., None);
         let _i1 = Intersection::new(5., &_s);
         let _i2 = Intersection::new(7., &_s);
         let _i3 = Intersection::new(-3., &_s);
@@ -146,4 +152,5 @@ mod test{
         let _agg = vec![_i1.clone(), _i2.clone(), _i3.clone(), _i4.clone()];
         assert_eq!(calc_hit(_agg).unwrap(), _i4);
     }
+
 }
