@@ -4,67 +4,89 @@ use crate::tuple::Tuple;
 use crate::util::util::get_matrix;
 
 pub fn translation(x: f32, y: f32, z: f32) -> Mat {
-    Mat::new(MatDim::FourDim(
+    let mut _a = Mat::new(MatDim::FourDim(
         vec![(1., 0.,0.,0.)],
         vec![(0.,1.,0.,0.)],
         vec![(0.,0.,1.,0.)],
         vec![(x,y,z,1.)]
-    ))
+    ));
+    _a.set_mat_type(MatType::Translation);
+    _a
 }
 pub fn inverse_translation(x: f32, y:f32, z:f32) -> Mat{
-    Mat::new(MatDim::FourDim(
+    let mut _a = Mat::new(MatDim::FourDim(
         vec![(1.,0.,0.,0.)],
         vec![(0.,1.,0.,0.)],
         vec![(0.,0.,1.,0.)],
         vec![(x * -1., y *-1., z *-1., 1.)]
-    ))
+    ));
+    _a.set_mat_type(MatType::Translation);
+    _a
 }
 
 pub fn scaling(x:f32, y: f32, z: f32) -> Mat{
-    Mat::new(MatDim::FourDim(
+    let mut _a = Mat::new(MatDim::FourDim(
         vec![(x, 0.,0.,0.)],
         vec![(0.,y,0.,0.)],
         vec![(0.,0.,z,0.)],
         vec![(0.,0.,0.,1.)]
-    ))
+    ));
+    _a.set_mat_type(MatType::Scaling);
+    _a
 }
 
 pub fn shearing(x_y : f32, x_z : f32,
                 y_x: f32, y_z : f32,
                 z_x: f32, z_y : f32) -> Mat{
-    Mat::new(MatDim::FourDim(
+    let mut _a = Mat::new(MatDim::FourDim(
         vec![(1., y_x, z_x, 0.)],
         vec![(x_y, 1., z_y, 0.)],
         vec![(x_z, y_z, 1., 0.)],
         vec![(0.,0.,0.,1.)]
-    ))
+    ));
+    _a.set_mat_type(MatType::Shearing);
+    _a
 }
 pub fn rotation_x(radians: f32) -> Mat{
-    let _a = Mat::new(MatDim::FourDim(
+    let mut _a = Mat::new(MatDim::FourDim(
         vec![(1.,0.,0.,0.)],
         vec![(0., radians.cos(), radians.sin(), 0.)],
         vec![(0. , (-1.* radians).sin(), radians.cos(), 0.)],
         vec![(0., 0., 0., 1.)]
     ));
+    _a.set_mat_type(MatType::Rotation);
     _a
 }
 pub fn rotation_y(radians: f32) -> Mat{
-    let _a = Mat::new(MatDim::FourDim(
+    let mut _a = Mat::new(MatDim::FourDim(
         vec![(radians.cos(),0.,(-1.0*radians).sin(),0.)],
         vec![(0., 1., 0., 0.)],
         vec![( radians.sin() , 0., radians.cos(), 0.)],
         vec![(0., 0., 0., 1.)]
     ));
+    _a.set_mat_type(MatType::Rotation);
     _a
 }
 
 pub fn rotation_z(radians:f32) -> Mat{
-    let _a = Mat::new(MatDim::FourDim(
+    let mut _a = Mat::new(MatDim::FourDim(
         vec![(radians.cos(), radians.sin(), 0., 0.)],
         vec![((-1. * radians).sin(), radians.cos(), 0., 0.)],
         vec![(0. , 0., 1., 0.)],
         vec![(0., 0., 0., 1.)]
     ));
+    _a.set_mat_type(MatType::Rotation);
+    _a
+}
+
+pub fn identity() -> Mat {
+    let mut _a = Mat::new(MatDim::FourDim(
+        vec![(1.,0.,0.,0.)],
+        vec![(0.,1.,0.,0.)],
+        vec![(0.,0., 1., 0.)],
+        vec![(0.,0.,0.,1.)]
+    ));
+    _a.set_mat_type(MatType::Identity);
     _a
 }
 
@@ -73,6 +95,7 @@ pub struct Mat {
     m_rows: usize,
     m_cols: usize,
     pub m_data : Vec<Vec<f32>>, // Im not happy about using this.
+    mat_type: MatType
 }
 
 pub enum MatDim {
@@ -87,6 +110,15 @@ pub enum MatDim {
     FourDim(Vec<(f32, f32, f32, f32)>, Vec<(f32, f32, f32, f32)>,
             Vec<(f32,f32,f32,f32)>, Vec<(f32,f32,f32,f32)>)
 }
+#[derive(Debug, Clone)]
+pub enum MatType{
+    Rotation,
+    Translation,
+    Scaling,
+    Identity,
+    Shearing,
+    None
+}
 
 impl Mul for Mat {
     type Output = Self;
@@ -99,7 +131,19 @@ impl Mul for Mat {
                     rhs.m_data[2][col] + self.m_data[row][3] * rhs.m_data[3][col];
             }
         }
-        Mat {m_rows: 4, m_cols:4, m_data : matrix_data}
+        Mat {m_rows: 4, m_cols:4, m_data : matrix_data, mat_type:self.mat_type}
+    }
+}
+impl Mul<tuple::Tuple> for &Mat{
+    type Output = tuple::Tuple;
+
+    fn mul(self, rhs: Tuple) -> Self::Output {
+        let mut tuple_data:Vec<f32>= vec![] ;
+        for a in &self.m_data{
+            let tuple_datum = a[0] * rhs.get_X() + a[1]*rhs.get_Y() + a[2] * rhs.get_Z() + a[3] *rhs.get_W();
+            tuple_data.push(tuple_datum);
+        }
+        Tuple::new( tuple_data[0], tuple_data[1],tuple_data[2],  tuple_data[3])
     }
 }
 impl Mul<tuple::Tuple> for Mat {
@@ -170,7 +214,7 @@ impl Mat {
                     data[0].push(v1);
                     data[1].push(v2);
                 }
-                Mat { m_rows: 2, m_cols: 2, m_data: data }
+                Mat { m_rows: 2, m_cols: 2, m_data: data, mat_type: MatType::None }
             },
             MatDim::ThreeDim(col1, col2, col3) => {
                 let mut data = vec![vec![], vec![], vec![]];
@@ -179,7 +223,7 @@ impl Mat {
                     data[1].push(v2);
                     data[2].push(v3);
                 }
-                Mat { m_rows: 3, m_cols: 3, m_data: data }
+                Mat { m_rows: 3, m_cols: 3, m_data: data, mat_type:MatType::None}
             }
             MatDim::FourDim(col1, col2, col3, col4) => {
                 let mut data = vec![vec![], vec![], vec![], vec![]];
@@ -189,7 +233,7 @@ impl Mat {
                     data[2].push(v3);
                     data[3].push(v4);
                 }
-                Mat { m_rows: 4, m_cols: 4, m_data: data }
+                Mat { m_rows: 4, m_cols: 4, m_data: data, mat_type: MatType::None}
             }
         }
     }
@@ -284,6 +328,12 @@ impl Mat {
             Some(_b)
         }
     }
+    fn set_mat_type(&mut self, mat_type: MatType){
+        self.mat_type = mat_type;
+    }
+    pub fn get_mat_type(&self) -> MatType{
+        self.mat_type.clone()
+    }
 }
 
 #[cfg(test)]
@@ -291,7 +341,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn construct_2d_mat() {
+    fn construct_2d_mat_test() {
         let _2d_mat = Mat::new(MatDim::TwoDim(vec![(-3., 1.)], vec![(5., -2.)]));
         assert_eq!(_2d_mat.m_data[0][0], -3.);
         assert_eq!(_2d_mat.m_data[0][1], 5.);
@@ -300,7 +350,7 @@ mod tests {
     }
 
     #[test]
-    fn construct_3d_mat() {
+    fn construct_3d_mat_test() {
         let _3d_mat = Mat::new(MatDim::ThreeDim(vec![(-3., 1., 0.)], vec![(5., -2., 1.)], vec![(0., -7., 1.)]));
         assert_eq!(_3d_mat.m_data[0][0], -3.);
         assert_eq!(_3d_mat.m_data[1][1], -2.);
@@ -308,7 +358,7 @@ mod tests {
     }
 
     #[test]
-    fn mat_equality_ident() {
+    fn mat_equality_ident_test() {
         let _a =
             Mat::new(MatDim::FourDim(
                 vec![(1., 5., 9., 5.)],
@@ -324,7 +374,7 @@ mod tests {
     }
 
     #[test]
-    fn mat_equality_diff() {
+    fn mat_equality_diff_test() {
         let _a =
             Mat::new(MatDim::FourDim(
                 vec![(1., 5., 9., 5.)],
@@ -341,7 +391,7 @@ mod tests {
     }
 
     #[test]
-    fn correct_mat_mult() {
+    fn correct_mat_mult_test() {
         let _a =
             Mat::new(MatDim::FourDim(
                 vec![(1., 5., 9., 5.)],
@@ -354,7 +404,7 @@ mod tests {
     }
 
     #[test]
-    fn mat_tup_mult() {
+    fn mat_tup_mult_test() {
         let _a =
             Mat::new(MatDim::FourDim(vec![(1., 2., 8., 0.)], vec![(2., 4., 6., 0.)], vec![(3., 4., 4., 0.)], vec![(4., 2., 1., 1.)]));
         let _b = Tuple::new(1., 2., 3., 1.);
@@ -362,7 +412,7 @@ mod tests {
     }
 
     #[test]
-    fn mat_ident_mult() {
+    fn mat_ident_mult_test() {
         let _a =
             Mat::new(MatDim::FourDim(vec![(0., 1., 2., 4.)], vec![(1., 2., 4., 8.)], vec![(2., 4., 8., 16.)], vec![(4., 8., 16., 32.)]));
         let _ident =
@@ -371,7 +421,7 @@ mod tests {
     }
 
     #[test]
-    fn tuple_ident_mult() {
+    fn tuple_ident_mult_test() {
         let _a = Tuple::new(1., 2., 3., 4.);
         let _ident =
             Mat::new(MatDim::FourDim(vec![(1., 0., 0., 0.)], vec![(0., 1., 0., 0.)], vec![(0., 0., 1., 0.)], vec![(0., 0., 0., 1.)]));
@@ -388,7 +438,7 @@ mod tests {
     }
 
     #[test]
-    fn transpose_ident() {
+    fn transpose_ident_test() {
         let mut _ident =
             Mat::new(MatDim::FourDim(vec![(1., 0., 0., 0.)], vec![(0., 1., 0., 0.)], vec![(0., 0., 1., 0.)], vec![(0., 0., 0., 1.)]));
         _ident.transpose();
@@ -397,14 +447,14 @@ mod tests {
     }
 
     #[test]
-    fn test_determinant() {
+    fn determinant_test() {
         let _a = Mat::new(MatDim::TwoDim(vec![(1., -3.)], vec![(5., 2.)]));
         let det = _a.get_determinant();
         assert_eq!(det, 17.)
     }
 
     #[test]
-    fn get_sub_mat_test_3dim() {
+    fn get_sub_mat_3d_test() {
         let _a = Mat::new(MatDim::ThreeDim(vec![(1., -3., 0.)], vec![(5., 2., 6.)], vec![(0., 7., -3.)]));
         let _a_sub = _a.get_submatrix(0, 2);
         println!("{:?}", _a_sub);
@@ -412,7 +462,7 @@ mod tests {
     }
 
     #[test]
-    fn get_sub_mat_test_4dim() {
+    fn get_sub_mat_4d_test() {
         let _a = Mat::new(MatDim::FourDim(vec![(-6., -8., -1., -7.)], vec![(1., 5., 0., 1.)], vec![(1., 8., 8., -1.)], vec![(6., 6., 2., 1.)]));
         let _a_sub = _a.get_submatrix(2, 1);
         let mut _b = _a.clone();
@@ -459,7 +509,7 @@ mod tests {
     }
 
     #[test]
-    fn invertible_test_succ() {
+    fn invertible_success_test() {
         let _a =
             Mat::new(MatDim::FourDim(
                 vec![(6., 5., 4., 9.)],
@@ -471,7 +521,7 @@ mod tests {
     }
 
     #[test]
-    fn invertible_test_fail() {
+    fn invertible_fail_test() {
         let _a =
             Mat::new(MatDim::FourDim(
                 vec![(-4., 9., 0., 0.)],
@@ -501,7 +551,7 @@ mod tests {
     }
 
     #[test]
-    fn inverse_mat_test_b() {
+    fn inverse_mat_b_test() {
         let _a =
             Mat::new(MatDim::FourDim(
                 vec![(9., -5., -4., -7.)],
@@ -518,7 +568,7 @@ mod tests {
     }
 
     #[test]
-    fn mat_product_inverse() {
+    fn mat_product_inverse_test() {
         let _a = Mat::new(MatDim::FourDim(
             vec![(3., 3., -4., -6.)],
             vec![(-9., -8., 4., 5.)],
@@ -540,7 +590,7 @@ mod tests {
     }
 
     #[test]
-    fn is_inv_trans_trans_inv() {
+    fn is_inv_trans_trans_inv_test() {
         let mut _a = Mat::new(
             MatDim::FourDim(
                 vec![(9., -5., -4., -7.)],
@@ -557,7 +607,7 @@ mod tests {
     }
 
     #[test]
-    fn mult_translation() {
+    fn mult_translation_test() {
         let _transform = translation(5., -3., 2.);
         let _point = Tuple::new_point(-3., 4., 5.);
         let _transformed_point = _transform * _point;
@@ -565,7 +615,7 @@ mod tests {
     }
 
     #[test]
-    fn mult_inverse_translation() {
+    fn mult_inverse_translation_test() {
         // There's something wrong with taking the translation matrix
         // and inverting it. It doesn't switch the signs of the x,y,z values
         // as is supposed to happen.
@@ -581,7 +631,7 @@ mod tests {
     }
 
     #[test]
-    fn mult_translation_vector() {
+    fn mult_translation_vector_test() {
         let _transform = translation(5., 3., 2.);
         let _v = Tuple::new_vector(-3., 4., 5.);
         assert_eq!(_transform * _v, _v);
@@ -595,14 +645,14 @@ mod tests {
     }
 
     #[test]
-    fn scale_point_vector() {
+    fn scale_point_vector_test() {
         let _scaling = scaling(2., 3., 4.);
         let _p = Tuple::new_vector(-4., 6., 8.);
         assert_eq!(_scaling * _p, Tuple::new_vector(-8., 18., 32.));
     }
 
     #[test]
-    fn scale_vector_inverse() {
+    fn scale_vector_inverse_test() {
         let _scaling = scaling(2., 3., 4.);
         let _scale_inv = get_matrix(_scaling.inverse());
         let _v = Tuple::new_vector(-4., 6., 8.);
@@ -617,7 +667,7 @@ mod tests {
     }
 
     #[test]
-    fn rotate_x(){
+    fn rotate_x_test(){
         let half_q = rotation_x(std::f32::consts::FRAC_PI_4);
         let full_q = rotation_x(std::f32::consts::FRAC_PI_2);
         let _p = Tuple::new_point(0.,1.,0.);
@@ -625,14 +675,14 @@ mod tests {
         assert_eq!(full_q * _p, Tuple::new_point(0.,0.,1.));
     }
     #[test]
-    fn inverse_rotate_x(){
+    fn inverse_rotate_x_test(){
         let half_q = rotation_x(std::f32::consts::FRAC_PI_4).inverse();
         let _inv_half_q = get_matrix(half_q);
         let _p = Tuple::new_point(0.,1.,0.);
         assert_eq!(_inv_half_q * _p, Tuple::new_point(0., 2.0_f32.sqrt()/2., -2.0_f32.sqrt()/2.));
     }
     #[test]
-    fn rotate_y(){
+    fn rotate_y_test(){
         let half_q = rotation_y(std::f32::consts::FRAC_PI_4);
         let full_q = rotation_y(std::f32::consts::FRAC_PI_2);
         let _p = Tuple::new_point(0.,0.,1.);
@@ -640,7 +690,7 @@ mod tests {
         assert_eq!(full_q * _p, Tuple::new_point(1.,0.,0.));
     }
     #[test]
-    fn rotate_z() {
+    fn rotate_z_test() {
         // So the whole sign system is still fucked. Uh...
         let half_q = rotation_z(std::f32::consts::FRAC_PI_4);
         let full_q = rotation_z(std::f32::consts::FRAC_PI_2);
@@ -683,7 +733,7 @@ mod tests {
         assert_eq!(_trans * _p, Tuple::new_point(2.,3.,7.));
     }
     #[test]
-    fn mat_linear(){
+    fn mat_linear_test(){
         let _p = Tuple::new_point(1.,0.,1.);
         let _rot = rotation_x(std::f32::consts::FRAC_PI_2);
         let _scale = scaling(5.,5.,5.);
@@ -696,7 +746,7 @@ mod tests {
         assert_eq!(_p4, Tuple::new_point(15.,0.,7.));
     }
     #[test]
-    fn mat_chain(){
+    fn mat_chain_test(){
         let _p = Tuple::new_point(1.,0.,1.);
         let _trans = translation(10.,5.,7.) *
             scaling(5.,5.,5.)*
