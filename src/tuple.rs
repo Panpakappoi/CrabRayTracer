@@ -161,7 +161,7 @@ impl Tuple{
 mod tests{
     use super::*;
     #[test]
-    fn is_point(){
+    fn is_point_test(){
         let _a = Tuple::new_point(4.3, -4.2, 3.1);
         let isPoint = _a.isPoint();
         let isVector = _a.isVector();
@@ -169,7 +169,7 @@ mod tests{
         assert_eq!(isVector, false);
     }
     #[test]
-    fn is_vector(){
+    fn is_vector_test(){
         let _a  = Tuple::new_vector(4.3, -4.2, 3.1);
         let isPoint = _a.isPoint();
         let isVector = _a.isVector();
@@ -177,7 +177,7 @@ mod tests{
         assert_eq!(isVector, true);
     }
     #[test]
-    fn add_two_tuple(){
+    fn add_two_tuple_test(){
         let _a1 = Tuple::new(3.0, -2.0, 5.0, 1.0);
         let _a2 = Tuple::new(-2.0, 3.0, 1.0, 0.0);
         let _b = Tuple::new(1.0, 1.0, 6.0, 1.0);
@@ -185,97 +185,97 @@ mod tests{
         assert_eq!(_c, _b )
     }
     #[test]
-    fn sub_two_point(){
+    fn sub_two_point_test(){
         let _p1 = Tuple::new_point(3.0,2.0,1.0);
         let _p2 = Tuple::new_point(5.0,6.0,7.0);
         assert_eq!(_p1 - _p2, Tuple::new(-2.0, -4.0, -6.0, 0.0));
     }
     #[test]
-    fn sub_point_vec(){
+    fn sub_point_vec_test(){
         let _p1 = Tuple::new_point(3.0, 2.0, 1.0);
         let _v1 = Tuple::new_vector(69.0, 42.0, 85.0);
         assert_eq!(_p1 - _v1, Tuple::new_point(-66.0, -40.0, -84.0));
     }
     #[test]
-    fn sub_two_vec(){
+    fn sub_two_vec_test(){
         let _v1 = Tuple::new_vector(3.0, 2.0, 1.0);
         let _v2 = Tuple::new_vector(5.0, 6.0, 7.0);
         assert_eq!(_v1 - _v2 ,Tuple::new_vector(-2.0, -4.0, -6.0));
     }
     #[test]
-    fn negation(){
+    fn negation_test(){
         let _a1 = Tuple::new(1.0,2.0,3.0,4.0);
         assert_eq!(-_a1, Tuple::new(-1.0, -2.0, -3.0, -4.0));
     }
 
     #[test]
-    fn scalar_mul(){
+    fn scalar_mul_test(){
         let mut _a1 = Tuple::new(1.0, -2.0, 3.0, -4.0);
         _a1 = _a1 * 3.5;
         assert_eq!(_a1, Tuple::new(3.5, -7.0, 10.5, -14.0))
     }
     #[test]
-    fn fractionated_mul(){
+    fn fractionated_mul_test(){
         let mut _a1 = Tuple::new(1.0, -2.0, 3.0, -4.0);
         _a1 = _a1 * 0.5;
         assert_eq!(_a1, Tuple::new(0.5, -1.0, 1.5, -2.0));
     }
     #[test]
-    fn scalar_div(){
+    fn scalar_div_test(){
         let mut _a1 = Tuple::new(1.0,-2.0, 3.0, -4.0);
         _a1 = _a1 / 2.0;
         assert_eq!(_a1, Tuple::new(0.5, -1.0, 1.5, -2.0)); 
     }
     #[test]
-    fn magnitude_1(){
+    fn magnitude_1_test(){
         let _v = Tuple::new_vector(1.0, 0.0, 0.0);
         let mag = _v.magnitude();
         assert_eq!(mag, 1.0);
     }
     #[test]
-    fn magnitude_2(){
+    fn magnitude_2_test(){
         let _v = Tuple::new_vector(0.0, 1.0, 0.0);
         let mag = _v.magnitude();
         assert_eq!(mag,1.0);
     }
     #[test]
-    fn magnitude_3(){
+    fn magnitude_3_test(){
         let _v = Tuple::new_vector(0.0, 0.0, 1.0);
         let mag = _v.magnitude();
         assert_eq!(mag,1.0);
     }
     #[test]
-    fn magnitude_4(){
+    fn magnitude_4_test(){
         let _v = Tuple::new_vector(1.0, 2.0, 3.0);
         let mag = _v.magnitude();
         assert_eq!(mag,f32::sqrt(14.0));
     }
 
     #[test]
-    fn magnitude_5(){
+    fn magnitude_5_test(){
         let _v = Tuple::new_vector(-1.0, -2.0, -3.0);
         let mag = _v.magnitude();
         assert_eq!(mag,f32::sqrt(14.0));
     }
     #[test]
-    fn normalize_1(){
+    fn normalize_1_test(){
         let _v = Tuple::new_vector(1.0,2.0,3.0);
         assert_eq!(_v.normalize(), Tuple::new_vector(0.26726, 0.53452, 0.80178));
     }
     #[test]
-    fn normalize_2(){
+    fn normalize_2_test(){
        let _v = Tuple::new_vector(4.0,0.0,0.0);
         assert_eq!(_v.normalize(), Tuple::new_vector(1.0,0.0,0.0));
     }
     #[test]
-    fn magnitude_of_norm(){
+    fn magnitude_of_norm_test(){
         let _v = Tuple::new_vector(1.0,2.0,3.0);
         let _v_norm = _v.normalize();
         assert_eq!(equality(_v_norm.magnitude(), 1.0_f32), true);
     }
 
     #[test]
-    fn cross_two_vec(){
+    fn cross_two_vec_test(){
         let _a1 = Tuple::new_vector(1.0, 2.0, 3.0);
         let _a2 = Tuple::new_vector(2.0,3.0,4.0);
         let _a1_cross = _a1.cross_product(&_a2);
