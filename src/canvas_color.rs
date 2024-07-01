@@ -63,19 +63,19 @@ impl Color{
 mod tests{ 
     use super::*;
     #[test]
-    fn add_color(){
+    fn add_color_test(){
         let _c1 = Color::new(0.9, 0.6, 0.75);
         let _c2 = Color::new(0.7, 0.1, 0.25);
         assert_eq!(_c1 + _c2, Color::new(1.6,0.7,1.0));
     }
     #[test]
-    fn sub_color(){
+    fn sub_color_test(){
         let _c1 = Color::new(0.9, 0.6, 0.75);
         let _c2 = Color::new(0.7, 0.1, 0.25);
         assert_eq!(_c1 - _c2, Color::new(0.2, 0.5, 0.5));
     }
     #[test]
-    fn mul_color_scalar(){
+    fn mul_color_scalar_test(){
         let _c1 = Color::new(0.2, 0.3, 0.4);
         let scalar = 2.0;
         assert_eq!(_c1 * scalar, Color::new(0.4, 0.6, 0.8));
